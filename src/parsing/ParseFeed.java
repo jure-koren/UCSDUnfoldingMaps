@@ -37,10 +37,12 @@ public class ParseFeed {
 				
 				// if successful create PointFeature and add to list
 				if( location != null) {
+					//System.out.println("Parse line " + i + ": " + location.getLat() + ", " + location.getLon() );
 					point = new PointFeature(location);
 					features.add(point);
 				}
 				else {
+					//System.out.println("Can't parse line " + i + "!");
 					continue;
 				}
 

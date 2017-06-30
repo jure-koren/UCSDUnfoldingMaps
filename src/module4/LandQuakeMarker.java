@@ -32,6 +32,11 @@ public class LandQuakeMarker extends EarthquakeMarker {
 		// HINT: Notice the radius variable in the EarthquakeMarker class
 		// and how it is set in the EarthquakeMarker constructor
 		
+		pg.ellipseMode(PGraphics.CENTER); // Be sure to center them at the x, y position passed in to drawEarthquake
+		float r = this.radius;
+		r = r * 2; // scale
+		pg.ellipse(x, y, r, r);
+		
 		// TODO: Implement this method
 		
 	}

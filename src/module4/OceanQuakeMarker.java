@@ -30,6 +30,10 @@ public class OceanQuakeMarker extends EarthquakeMarker {
 		// and how it is set in the EarthquakeMarker constructor
 		
 		// TODO: Implement this method
+		pg.ellipseMode(PGraphics.CENTER); // Be sure to center them at the x, y position passed in to drawEarthquake
+		float r = this.radius;
+		r = r * 2; // scale
+		pg.rect(x-r, y-r, r, r);
 		
 	}
 	
