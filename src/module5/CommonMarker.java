@@ -48,4 +48,21 @@ public abstract class CommonMarker extends SimplePointMarker {
 	}
 	public abstract void drawMarker(PGraphics pg, float x, float y);
 	public abstract void showTitle(PGraphics pg, float x, float y);
+	
+	public void drawTitle(PGraphics pg, float x, float y, String myTitle) {
+		// save previous styling
+		pg.pushStyle();
+		
+		pg.fill(255, 255, 255);
+		pg.rect(x, y-2, 300, 20);		
+		pg.fill(0, 0 , 0);
+		pg.textSize(12);
+		pg.text(myTitle, x+5, y, 300-5, 20);
+		
+		//pg.text(myTitle, x, y, 100, 10);
+		//System.out.println("Title: "+ myTitle + " at " + x + "," + y);
+		
+		// reset to previous styling
+		pg.popStyle();			
+	}	
 }

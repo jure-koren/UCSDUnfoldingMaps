@@ -16,7 +16,7 @@ import processing.core.PGraphics;
 // TODO: Change SimplePointMarker to CommonMarker as the very first thing you do 
 // in module 5 (i.e. CityMarker extends CommonMarker).  It will cause an error.
 // That's what's expected.
-public class CityMarker extends SimplePointMarker {
+public class CityMarker extends CommonMarker {
 	
 	public static int TRI_SIZE = 5;  // The size of the triangle marker
 	
@@ -36,22 +36,20 @@ public class CityMarker extends SimplePointMarker {
 	 * Implementation of method to draw marker on the map.
 	 */
 	public void draw(PGraphics pg, float x, float y) {
-		// Save previous drawing style
-		pg.pushStyle();
-		
-		// IMPLEMENT: drawing triangle for each city
-		pg.fill(150, 30, 30);
-		pg.triangle(x, y-TRI_SIZE, x-TRI_SIZE, y+TRI_SIZE, x+TRI_SIZE, y+TRI_SIZE);
-		
-		// Restore previous drawing style
-		pg.popStyle();
+		// For starter code just drawMaker(...)
+		if (!hidden) {
+			drawMarker(pg, x, y);
+			if (selected) {
+				showTitle(pg, x, y);  // You will implement this in the subclasses
+			}
+		}
 	}
 	
 	/** Show the title of the city if this marker is selected */
 	public void showTitle(PGraphics pg, float x, float y)
 	{
-		
-		// TODO: Implement this method
+		String myTitle = getCity() + ", " + getCountry() + ", pop.: " + getPopulation() ;
+		drawTitle(pg, x, y, myTitle);
 	}
 	
 	
@@ -71,5 +69,19 @@ public class CityMarker extends SimplePointMarker {
 	public float getPopulation()
 	{
 		return Float.parseFloat(getStringProperty("population"));
+	}
+
+
+	@Override
+	public void drawMarker(PGraphics pg, float x, float y) {
+		// Save previous drawing style
+		pg.pushStyle();
+		
+		// IMPLEMENT: drawing triangle for each city
+		pg.fill(150, 30, 30);
+		pg.triangle(x, y-TRI_SIZE, x-TRI_SIZE, y+TRI_SIZE, x+TRI_SIZE, y+TRI_SIZE);
+		
+		// Restore previous drawing style
+		pg.popStyle();
 	}
 }
