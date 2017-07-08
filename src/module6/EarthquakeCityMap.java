@@ -1,7 +1,7 @@
 package module6;
 
 import java.util.ArrayList;
-
+import java.awt.Color;
 import java.util.*;
 
 import java.util.Arrays;
@@ -17,6 +17,7 @@ import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.MultiMarker;
 import de.fhpotsdam.unfolding.providers.Google;
 import de.fhpotsdam.unfolding.providers.MBTilesMapProvider;
+import de.fhpotsdam.unfolding.providers.Microsoft;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import parsing.ParseFeed;
 import processing.core.PApplet;
@@ -81,7 +82,8 @@ public class EarthquakeCityMap extends PApplet {
 		    earthquakesURL = "2.5_week.atom";  // The same feed, but saved August 7, 2015
 		}
 		else {
-			map = new UnfoldingMap(this, 200, 50, 650, 600, new Google.GoogleMapProvider());
+			//map = new UnfoldingMap(this, 200, 50, 650, 600, new Google.GoogleMapProvider());
+			map = new UnfoldingMap(this, 200, 50, 650, 600, new Microsoft.AerialProvider());
 			// IF YOU WANT TO TEST WITH A LOCAL FILE, uncomment the next line
 		    earthquakesURL = "2.5_week.atom";
 		}
@@ -93,7 +95,7 @@ public class EarthquakeCityMap extends PApplet {
 		//earthquakesURL = "test2.atom";
 		
 		// Uncomment this line to take the quiz
-		//earthquakesURL = "quiz2.atom";
+		earthquakesURL = "quiz2.atom";
 		
 		
 		// (2) Reading in earthquake data and geometric properties
@@ -133,7 +135,7 @@ public class EarthquakeCityMap extends PApplet {
 	    map.addMarkers(cityMarkers);
 	    
 	    
-	    sortAndPrint(10);
+	    sortAndPrint(100);
 	    
 	    // test
 	    //Location loc = new Location(37.786952, -122.399523);
@@ -150,21 +152,15 @@ public class EarthquakeCityMap extends PApplet {
 	}
 	
 	
-	// create a new array from the list of earthquake markers
+	// create a new sorted array from the list of earthquake markers
 	private void sortAndPrint(int numToPrint) {
 		/*  This method will create a new array from the list of 
 		 * earthquake markers (hint: there is a method in the List 
 		 * interface named toArray() which returns the elements in 
-		 * the List as an array of Objects). 
-		 * 
-		 * Then it will sort the 
+		 * the List as an array of Objects). Then it will sort the 
 		 * array of earthquake markers in reverse order of their 
-		 * magnitude (highest to lowest) and 
-		 * 
-		 * then print out the top 
-		 * numToPrint earthquakes. 
-		 * 
-		 * If numToPrint is larger than the 
+		 * magnitude (highest to lowest) and then print out the top 
+		 * numToPrint earthquakes. If numToPrint is larger than the 
 		 * number of markers in quakeMarkers, it should print out 
 		 * all of the earthquakes and stop, but it should not crash. */
 		
@@ -184,11 +180,7 @@ public class EarthquakeCityMap extends PApplet {
 	    for (int i = 0; i<numToPrint && i<arrQuakeMarkers.size(); i++) {
 	    	quake = arrQuakeMarkers.get(i);
 	    	System.out.println( (i+1) + ") " + quake.getMagnitude() + ": " + quake.getTitle() );
-	    	
 	    }
-	    
-	    
-		
 	}
 	// and then call that method from setUp
 	
@@ -202,11 +194,44 @@ public class EarthquakeCityMap extends PApplet {
 		// create new array list
 	    wikiMarkers = new ArrayList<Marker>();
 	    
+	    int i = 0;
 	    for(PointFeature feature : features) {
-	      System.out.println("getLocationWikis: new marker " + feature.getStringProperty("title") );
-		  wikiMarkers.add(new WikiMarker(feature));
+			i++;	    	
+			System.out.println("getLocationWikis: new marker " + feature.getStringProperty("title") );
+			// new marker
+			WikiMarker wm = new WikiMarker(feature);
+			// get color for marker
+			Color c = getColorFromNumber(i);
+			//System.out.println("getLocationWikis: color 0, 255, " + b);
+			// set color
+			wm.setColor(c);
+			// add to list
+			wikiMarkers.add(wm);
+
 	    }
 		
+	}
+	
+	private Color getColorFromNumber(int i) {
+		  int scale = 50;
+		  int scale2 = 30;
+		  int r = 0;
+		  int g = 255;
+		  int b = 0;
+		  
+		  b = (scale*i);
+		  if (b > 255) {
+			  // if greater than 25, get the remainder 
+			  b = 0+(scale*(i % (255/scale)));
+		  }
+		  g = g - (i * scale2);
+		  if (g < 0) {
+			  // if bellow 0 use same formula as above
+			  g = 0+(scale*(i % (255/scale)));
+		  }
+		  
+		  Color c = new Color(r, g, b);
+		  return c;
 	}
 	
 	// check for wiki pages near earthquake
@@ -252,8 +277,9 @@ public class EarthquakeCityMap extends PApplet {
         	fill(0);
         	text(shortTitle, x+25, y );  
         	// icon
-    		fill(0, 255, 0);
-    		ellipse(x, y, 15, 15);        	
+        	Color c = getColorFromNumber(i);
+    		fill(c.getRed(), c.getGreen(), c.getBlue() );
+    		ellipse(x, y, 15, 15);
         }
         
         
@@ -280,6 +306,9 @@ public class EarthquakeCityMap extends PApplet {
 		}
 		selectMarkerIfHover(quakeMarkers);
 		selectMarkerIfHover(cityMarkers);
+		if (wikisDisplayed) {
+			selectMarkerIfHover(wikiMarkers);
+		}
 		//loop();
 	}
 	
