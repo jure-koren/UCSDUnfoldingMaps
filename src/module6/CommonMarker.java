@@ -14,6 +14,7 @@ public abstract class CommonMarker extends SimplePointMarker {
 
 	// Records whether this marker has been clicked (most recently)
 	protected boolean clicked = false;
+	protected String url = "";
 	
 	public CommonMarker(Location location) {
 		super(location);
@@ -33,6 +34,14 @@ public abstract class CommonMarker extends SimplePointMarker {
 		clicked = state;
 	}
 	
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
 	// Common piece of drawing method for markers; 
 	// YOU WILL IMPLEMENT. 
 	// Note that you should implement this by making calls 

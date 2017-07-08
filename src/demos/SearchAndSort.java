@@ -154,4 +154,91 @@ public class SearchAndSort {
 		
 		
 	}
+	
+	public int findMyAirport(String searchFor) {
+		int idx = -1;
+		
+		String datafile = "data/airports.dat";
+		ArrayList<Airport> airports = null;
+		try {
+			airports = readFile(datafile);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		
+		for(int i = 0; i < airports.size(); i++) {
+			if (airports.get(i).getCity().equals(searchFor)) {
+				idx = i;
+				break;
+			}
+		}
+		
+		
+		return idx;
+	}
+	
+	
+	public String findMyAirportBinary(String searchFor) {
+		String found = null;
+		
+		String datafile = "data/airports.dat";
+		ArrayList<Airport> airports = null;
+		try {
+			airports = readFile(datafile);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		
+		int low = 0;
+		int high = airports.size();
+		int mid;
+		
+		while (low <= high) {
+			mid = low + ((high-low)/2);
+			int compare = searchFor.compareTo(airports.get(mid).getCity());
+		
+			if (compare < 0) {
+				// we are looking for city before this one
+				// keep low the same
+				high = mid-1;
+			} else if (compare > 0) {
+				// we are looking for the city after this one
+				low = mid+1;
+				// keep high the same;
+			} else {
+				// found
+				found = airports.get(mid).getCode3();
+				return found;
+			}
+			
+		}
+		return null;
+	}	
+	
+	// sort array of integers
+	private void sortTest(int[] vals) {
+		int indexFrom;
+		
+		// loop through the list
+		for(int i=0; i < vals.length-1; i++) {
+			// start with the current element
+			indexFrom = i;
+			// loop through the remaining list
+			for (int j=i+1; j<vals.length; j++) {
+				// check if smaller
+				if (vals[j] < vals[indexFrom]) {
+					indexFrom = j;
+				}
+			}
+			
+			//swap
+			int oldIndexFromVal;
+			oldIndexFromVal = vals[indexFrom];
+			vals[indexFrom] = vals[i];
+			vals[i] = oldIndexFromVal;
+		}
+		
+	}
 }

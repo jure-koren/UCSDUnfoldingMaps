@@ -1,6 +1,9 @@
 package module6;
 
 import java.util.ArrayList;
+
+import java.util.*;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -58,12 +61,17 @@ public class EarthquakeCityMap extends PApplet {
 	// Markers for each earthquake
 	private List<Marker> quakeMarkers;
 
+	// markers for wiki
+	private List<Marker> wikiMarkers;
+	private boolean wikisDisplayed = false;
+	
 	// A List of country markers
 	private List<Marker> countryMarkers;
 	
 	// NEW IN MODULE 5
 	private CommonMarker lastSelected;
 	private CommonMarker lastClicked;
+	
 	
 	public void setup() {		
 		// (1) Initializing canvas and map tiles
@@ -75,7 +83,7 @@ public class EarthquakeCityMap extends PApplet {
 		else {
 			map = new UnfoldingMap(this, 200, 50, 650, 600, new Google.GoogleMapProvider());
 			// IF YOU WANT TO TEST WITH A LOCAL FILE, uncomment the next line
-		    //earthquakesURL = "2.5_week.atom";
+		    earthquakesURL = "2.5_week.atom";
 		}
 		MapUtils.createDefaultEventDispatcher(this, map);
 		
@@ -125,6 +133,12 @@ public class EarthquakeCityMap extends PApplet {
 	    map.addMarkers(cityMarkers);
 	    
 	    
+	    sortAndPrint(10);
+	    
+	    // test
+	    //Location loc = new Location(37.786952, -122.399523);
+	    //getLocationWikis(loc);
+	    
 	}  // End setup
 	
 	
@@ -136,9 +150,121 @@ public class EarthquakeCityMap extends PApplet {
 	}
 	
 	
-	// TODO: Add the method:
-	//   private void sortAndPrint(int numToPrint)
+	// create a new array from the list of earthquake markers
+	private void sortAndPrint(int numToPrint) {
+		/*  This method will create a new array from the list of 
+		 * earthquake markers (hint: there is a method in the List 
+		 * interface named toArray() which returns the elements in 
+		 * the List as an array of Objects). 
+		 * 
+		 * Then it will sort the 
+		 * array of earthquake markers in reverse order of their 
+		 * magnitude (highest to lowest) and 
+		 * 
+		 * then print out the top 
+		 * numToPrint earthquakes. 
+		 * 
+		 * If numToPrint is larger than the 
+		 * number of markers in quakeMarkers, it should print out 
+		 * all of the earthquakes and stop, but it should not crash. */
+		
+		// convert to array
+		List<EarthquakeMarker> arrQuakeMarkers = new ArrayList <EarthquakeMarker>();
+        for(Marker quake : quakeMarkers){
+            arrQuakeMarkers.add((EarthquakeMarker)quake);
+        }
+		
+        // sort in descending/reverse
+	    Collections.sort(arrQuakeMarkers);
+	    Collections.reverse(arrQuakeMarkers);
+	    
+	    // print
+	    System.out.println("Sorted list of top " + numToPrint + " quakes: ");
+	    EarthquakeMarker quake;
+	    for (int i = 0; i<numToPrint && i<arrQuakeMarkers.size(); i++) {
+	    	quake = arrQuakeMarkers.get(i);
+	    	System.out.println( (i+1) + ") " + quake.getMagnitude() + ": " + quake.getTitle() );
+	    	
+	    }
+	    
+	    
+		
+	}
 	// and then call that method from setUp
+	
+	// get 3 articles for the point from wikipedia
+	private void getLocationWikis(Location loc) {
+		System.out.println("getLocationWikis: " + loc.toString() );
+		
+		// get point features for location
+		List<PointFeature> features = HtmlJsonWikiReader.getFeaturesForLocation(loc);
+		
+		// create new array list
+	    wikiMarkers = new ArrayList<Marker>();
+	    
+	    for(PointFeature feature : features) {
+	      System.out.println("getLocationWikis: new marker " + feature.getStringProperty("title") );
+		  wikiMarkers.add(new WikiMarker(feature));
+	    }
+		
+	}
+	
+	// check for wiki pages near earthquake
+	private void checkWikiPages(Marker marker){
+		// get location of quake
+		Location loc = marker.getLocation();
+		// find the wikis for the location
+		getLocationWikis(loc);
+		// add them to the map
+		map.addMarkers(wikiMarkers);
+		// tbd: remove them after we don't need them anymore
+		// add key
+		wikisDisplayed = true;
+	}
+	
+	private void addWikiKey() {
+		
+		fill(255, 250, 240);
+		
+		int xbase = 25;
+		int ybase = 300;
+		
+		// draw box
+		rect(xbase, ybase, 150, 250);
+		
+		// 2nd title
+		fill(0);
+		textAlign(LEFT, CENTER);
+		textSize(12);
+		text("Nearby Wiki Pages", xbase+25, ybase+25);	
+		
+		// move down
+		ybase = ybase + 25;
+		
+		int i = 0;
+        for(Marker wiki : wikiMarkers){
+        	i++;
+        	int x = xbase+25;
+        	int y = ybase+(i*25);
+        	String title = wiki.getStringProperty(("title") );
+        	String shortTitle = title.substring(0, Math.min(title.length(), 15));
+        	// black title text
+        	fill(0);
+        	text(shortTitle, x+25, y );  
+        	// icon
+    		fill(0, 255, 0);
+    		ellipse(x, y, 15, 15);        	
+        }
+        
+        
+	}
+	
+	private void hideWikiMarkers() {
+		for(Marker marker : wikiMarkers) {
+			marker.setHidden(true);
+		}
+	}
+	
 	
 	/** Event handler that gets called automatically when the 
 	 * mouse moves.
@@ -186,6 +312,7 @@ public class EarthquakeCityMap extends PApplet {
 	{
 		if (lastClicked != null) {
 			unhideMarkers();
+			hideWikiMarkers();
 			lastClicked = null;
 		}
 		else if (lastClicked == null) 
@@ -246,6 +373,9 @@ public class EarthquakeCityMap extends PApplet {
 						mhide.setHidden(true);
 					}
 				}
+				// check wikipedia pages nearby
+				checkWikiPages(lastClicked);
+				
 				return;
 			}
 		}
@@ -323,7 +453,10 @@ public class EarthquakeCityMap extends PApplet {
 		line(centerx-8, centery-8, centerx+8, centery+8);
 		line(centerx-8, centery+8, centerx+8, centery-8);
 		
-		
+		//System.out.println("AddKey Finished: " + centerx + "," + centery);
+		if (wikisDisplayed) {
+			addWikiKey();
+		}
 	}
 
 	
